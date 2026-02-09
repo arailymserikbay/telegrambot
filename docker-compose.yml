@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: telegram-ai-bot
+    env_file:
+      - .env
+    depends_on:
+      - ollama
+    ports:
+      - "8000:8000"
+    restart: always
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: always
+
+volumes:
+  ollama_data:
