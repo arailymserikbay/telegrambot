@@ -1,3 +1,4 @@
+import asyncio
 import torch
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
@@ -19,3 +20,6 @@ def caption_image(image_path: str) -> str:
         out = model.generate(**inputs, max_new_tokens=50)
 
     return processor.decode(out[0], skip_special_tokens=True)
+
+async def get_image_caption(image_path: str) -> str:
+    return await asyncio.to_thread(caption_image, image_path)

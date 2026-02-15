@@ -1,14 +1,14 @@
 import os
-from aiogram import types
+from aiogram import types, F
 from app.bot.context import add_message, get_context, reset_context
 from app.llm.ollama import ask_llm
-from app.vision.blip import caption_image
+from app.vision.blip import get_image_caption
 from app.config import DATA_DIR, MAX_IMAGE_MB
 
 async def start_cmd(message: types.Message):
     await message.answer(
         "👋 Привет!\n"
-        "Я Telegram AI-бот:\n"
+        "Я AI-бот:\n"
         "• отвечаю на текст\n"
         "• анализирую изображения"
     )
@@ -29,7 +29,7 @@ async def text_handler(message: types.Message):
     add_message(message.chat.id, "user", message.text)
     ctx = get_context(message.chat.id)
 
-    answer = ask_llm(list(ctx))
+    answer = await ask_llm(list(ctx))
     add_message(message.chat.id, "assistant", answer)
 
     await message.answer(answer)
@@ -47,15 +47,15 @@ async def image_handler(message: types.Message):
 
     await message.bot.download(photo, destination=path)
 
-    caption = caption_image(path)
-
+    caption = await get_image_caption(path)
     user_text = message.caption or ""
+
     combined = f"Описание изображения: {caption}\n\nВопрос пользователя: {user_text}"
 
     add_message(message.chat.id, "user", combined)
     ctx = get_context(message.chat.id)
 
-    answer = ask_llm(list(ctx))
+    answer = await ask_llm(list(ctx))
     add_message(message.chat.id, "assistant", answer)
 
     await message.answer(answer)
